@@ -10,6 +10,9 @@
 
 **Skill-Link** is an AI-driven campus placement platform that connects talented students with top companies through intelligent matching. The platform features **CareerBot**, an AI-powered career assistant that helps students with job recommendations, resume analysis, and learning paths.
 
+## FOR THE OUTPUT DIRECT SEARCH "linkfortheoutput.txt" file to check the output.
+(https://acorned-kesha-covertly.ngrok-free.dev) direct link.
+
 ### Team Arena
 
 - **Soumy Chavhan** - Team Lead
@@ -252,4 +255,5 @@ This project is built by **Team Arena** for educational purposes.
 
 <p align="center">Made with ❤️ by Team Arena</p>
 <p align="center">Skill-Link - Connecting Talent with Opportunity</p>
+
 
