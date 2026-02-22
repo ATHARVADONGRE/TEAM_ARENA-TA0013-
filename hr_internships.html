@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Internships - Skill-Link</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .internship-card { border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .internship-card:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/dashboard/hr">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard/hr/post-job">Post Job</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/dashboard/hr/internships">Internships</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard/hr/skill-demand">Analytics</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i class="fas fa-briefcase"></i> My Posted Internships</h3>
+            <a href="/dashboard/hr/post-internship" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Post New Internship
+            </a>
+        </div>
+
+        <div id="internshipsList" class="row">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2">Loading internships...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = '/api/internships';
+        const hrData = JSON.parse(localStorage.getItem('hr') || '{}');
+        const hrId = hrData.id;
+        const token = localStorage.getItem('token');
+
+        if (!token || localStorage.getItem('role') !== 'hr') {
+            window.location.href = '/hr/login';
+        }
+
+        async function loadInternships() {
+            try {
+                const response = await fetch(`${API_URL}/hr/${hrId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayInternships(data.internships || []);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayInternships(internships) {
+            if (!internships.length) {
+                document.getElementById('internshipsList').innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                        <p>No internships posted yet.</p>
+                        <a href="/dashboard/hr/post-internship" class="btn btn-primary">Post Your First Internship</a>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            internships.forEach(internship => {
+                const isActive = internship.is_active;
+                const expiryDate = internship.expiry_date ? new Date(internship.expiry_date).toLocaleDateString() : 'No deadline';
+                
+                html += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card internship-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5>${internship.title}</h5>
+                                        <p class="text-muted mb-1"><i class="fas fa-building"></i> ${internship.company}</p>
+                                    </div>
+                                    <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'}">${isActive ? 'Active' : 'Closed'}</span>
+                                </div>
+                                <p class="card-text small">${internship.description.substring(0, 100)}...</p>
+                                <div class="row small text-muted mb-3">
+                                    <div class="col-6"><i class="fas fa-clock"></i> ${internship.duration}</div>
+                                    <div class="col-6"><i class="fas fa-money-bill"></i> ${internship.stipend || 'Unpaid'}</div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small>Deadline: ${expiryDate}</small>
+                                    <div>
+                                        <a href="/dashboard/hr/internship-applicants/${internship.id}" class="btn btn-sm btn-primary">
+                                            View Applicants (${internship.applicant_count || 0})
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('internshipsList').innerHTML = html;
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = '/';
+        });
+
+        loadInternships();
+    </script>
+</body>
+</html>

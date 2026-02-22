@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Skills - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/resume"><i class="fas fa-upload"></i> Resume</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard/student/skills"><i class="fas fa-tags"></i> Skills</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-graduate"></i> <span id="userName">Student</span></a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="dashboard-card">
+                <h5 class="mb-4"><i class="fas fa-tags text-primary me-2"></i>My Skills</h5>
+                <p class="text-muted mb-3">Add skills relevant to your career (press Enter after each skill)</p>
+                
+                <div class="input-group mb-4">
+                    <span class="input-group-text"><i class="fas fa-plus"></i></span>
+                    <input type="text" class="form-control" id="skillInput" placeholder="Type a skill and press Enter">
+                </div>
+                
+                <div id="skillTags" class="mb-4">
+                    <!-- Skills will appear here -->
+                </div>
+                
+                <button class="btn btn-primary w-100" onclick="saveSkills()">
+                    <i class="fas fa-save me-2"></i>Save Skills
+                </button>
+            </div>
+            
+            <div class="dashboard-card mt-4">
+                <h5 class="mb-4"><i class="fas fa-lightbulb text-warning me-2"></i>Suggested Skills</h5>
+                <p class="text-muted mb-3">Popular skills that can boost your profile:</p>
+                <div id="suggestedSkills">
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Python')">Python +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('JavaScript')">JavaScript +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('React')">React +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('SQL')">SQL +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Machine Learning')">Machine Learning +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('AWS')">AWS +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Docker')">Docker +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Git')">Git +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Data Analysis')">Data Analysis +</span>
+                    <span class="skill-tag" style="cursor: pointer;" onclick="addSuggestedSkill('Node.js')">Node.js +</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var currentSkills = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadSkills();
+});
+
+function checkAuth() {
+    var token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('userRole') !== 'student') {
+        window.location.href = '/student/login';
+    }
+    var student = JSON.parse(localStorage.getItem('student') || '{}');
+    document.getElementById('userName').textContent = student.name || 'Student';
+}
+
+async function loadSkills() {
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/students/skills', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            var data = await response.json();
+            currentSkills = data.skills || [];
+            renderSkills();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function renderSkills() {
+    var container = document.getElementById('skillTags');
+    if (currentSkills.length === 0) {
+        container.innerHTML = '<p class="text-muted">No skills added yet</p>';
+        return;
+    }
+    container.innerHTML = currentSkills.map(function(skill) {
+        return '<span class="skill-tag" style="cursor: pointer; padding: 8px 16px; font-size: 14px;" onclick="removeSkill(\'' + skill + '\')">' + skill + ' <i class="fas fa-times"></i></span>';
+    }).join('');
+}
+
+document.getElementById('skillInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        var skill = this.value.trim();
+        if (skill && currentSkills.indexOf(skill) === -1) {
+            currentSkills.push(skill);
+            renderSkills();
+        }
+        this.value = '';
+    }
+});
+
+function removeSkill(skill) {
+    currentSkills = currentSkills.filter(function(s) { return s !== skill; });
+    renderSkills();
+}
+
+function addSuggestedSkill(skill) {
+    if (currentSkills.indexOf(skill) === -1) {
+        currentSkills.push(skill);
+        renderSkills();
+    }
+}
+
+async function saveSkills() {
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/students/skills', {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ skills: currentSkills })
+        });
+        if (response.ok) {
+            showNotification('Skills saved successfully!', 'success');
+        } else {
+            showNotification('Failed to save skills', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error saving skills', 'danger');
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

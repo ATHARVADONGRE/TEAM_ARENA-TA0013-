@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Applications - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard/student/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/resume"><i class="fas fa-upload"></i> Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/skills"><i class="fas fa-tags"></i> Skills</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-graduate"></i> <span id="userName">Student</span></a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <h5 class="mb-4"><i class="fas fa-list text-info me-2"></i>My Applications</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Applied Date</th>
+                                <th>Match %</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTable">
+                            <tr><td colspan="5" class="text-center"><div class="spinner-border text-primary"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadApplications();
+});
+
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('userRole') !== 'student') {
+        window.location.href = '/student/login';
+    }
+    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    document.getElementById('userName').textContent = student.name || 'Student';
+}
+
+async function loadApplications() {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('/api/students/applications', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            renderApplications(data.applications || []);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function renderApplications(applications) {
+    const tbody = document.getElementById('applicationsTable');
+    if (applications.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No applications yet</td></tr>';
+        return;
+    }
+    const statusClass = {'Applied': 'badge-applied', 'Shortlisted': 'badge-shortlisted', 'Rejected': 'badge-rejected', 'Interview': 'badge-interview', 'Selected': 'badge-success'};
+    tbody.innerHTML = applications.map(app => `
+        <tr>
+            <td><strong>${app.job.title}</strong></td>
+            <td>${app.job.branch}</td>
+            <td>${new Date(app.application.applied_at).toLocaleDateString()}</td>
+            <td><span class="badge bg-primary">${Math.round(app.application.match_percentage)}%</span></td>
+            <td><span class="${statusClass[app.application.status] || 'badge-applied'}">${app.application.status}</span></td>
+        </tr>
+    `).join('');
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

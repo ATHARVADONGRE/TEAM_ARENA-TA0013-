@@ -1,0 +1,745 @@
+{% extends "base.html" %}
+
+{% block title %}HR Dashboard - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-link"></i>
+            Skill-Link
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard/hr">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#jobs">
+                        <i class="fas fa-briefcase"></i> Jobs
+                    </a>
+                </li>
+                <!-- NEW: Skill Demand Analytics -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/hr/skill-demand">
+                        <i class="fas fa-chart-bar"></i> Skill Demand
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <span class="nav-link" id="hrName">
+                        <i class="fas fa-user-tie"></i> Welcome
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-light ms-2" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid py-4">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
+                <h3 id="totalJobs">0</h3>
+                <p><i class="fas fa-briefcase me-2"></i>Total Jobs</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);">
+                <h3 id="activeJobs">0</h3>
+                <p><i class="fas fa-check-circle me-2"></i>Active Jobs</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);">
+                <h3 id="totalApplicants">0</h3>
+                <p><i class="fas fa-users me-2"></i>Applicants</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #2ec4b6 0%, #20a4f3 100%);">
+                <h3 id="shortlistedCount">0</h3>
+                <p><i class="fas fa-user-check me-2"></i>Shortlisted</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Jobs Section -->
+            <div class="dashboard-card mb-4" id="jobs">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0"><i class="fas fa-briefcase text-primary me-2"></i>My Job Postings</h5>
+                    <button class="btn btn-primary" onclick="showPostJobModal()">
+                        <i class="fas fa-plus me-2"></i>Post New Job
+                    </button>
+                </div>
+                <div id="jobsList">
+                    <!-- Jobs will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Loading jobs...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Analytics -->
+            <div class="dashboard-card mb-4" id="analytics">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie text-warning me-2"></i>Analytics</h5>
+                    <a href="/dashboard/hr/skill-demand" class="btn btn-sm btn-outline-primary">View More</a>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="text-muted">Top Skills in Applicants</h6>
+                    <div id="topSkills">
+                        <!-- Skills will be loaded here -->
+                    </div>
+                </div>
+                
+                <div>
+                    <h6 class="text-muted">Application Status</h6>
+                    <div class="mb-2">
+                        <span class="badge badge-applied">Applied</span>
+                        <span id="analyticsApplied">0</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="badge badge-shortlisted">Shortlisted</span>
+                        <span id="analyticsShortlisted">0</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="badge badge-rejected">Rejected</span>
+                        <span id="analyticsRejected">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Link to Skill Demand -->
+            <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h5><i class="fas fa-chart-bar me-2"></i>Skill Demand Analytics</h5>
+                <p class="mb-3">View high-demand skills across all job postings</p>
+                <a href="/dashboard/hr/skill-demand" class="btn btn-light">View Analytics</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Post Job Modal -->
+<div class="modal fade" id="postJobModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-briefcase me-2"></i>Post New Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="postJobForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-control" id="jobTitle" required placeholder="e.g., Software Developer">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Branch</label>
+                            <select class="form-select" id="jobBranch" required>
+                                <option value="All">All Branches</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Electrical">Electrical</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Civil">Civil</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum CGPA</label>
+                            <input type="number" class="form-control" id="jobMinCGPA" step="0.1" min="0" max="10" value="6.0" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" id="jobExpiry">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Required Skills (press Enter after each)</label>
+                        <input type="text" class="form-control" id="jobSkillInput" placeholder="e.g., Python, Java, React">
+                        <div id="jobSkillTags" class="mt-2"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Job Description</label>
+                        <textarea class="form-control" id="jobDescription" rows="4" required placeholder="Describe the job role and responsibilities..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-briefcase me-2"></i>Post Job
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Applicants Modal -->
+<div class="modal fade" id="applicantsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-users me-2"></i>Applicants</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchApplicant" placeholder="Search by name...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Shortlisted">Shortlisted</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterMatch">
+                            <option value="">All Match %</option>
+                            <option value="80">Above 80%</option>
+                            <option value="60">Above 60%</option>
+                            <option value="40">Above 40%</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="filterApplicants()">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Applicants Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Branch</th>
+                                <th>Resume Score</th>
+                                <th>Match %</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicantsTable">
+                            <!-- Applicants will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Recommendations Modal -->
+<div class="modal fade" id="recommendationsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-robot me-2"></i>AI Recommended Students</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-lightbulb me-2"></i>These students match your job requirements even if they haven't applied!
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Branch</th>
+                                <th>Skills</th>
+                                <th>Resume Score</th>
+                                <th>Match %</th>
+                                <th>Applied</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recommendationsTable">
+                            <!-- Recommendations will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let hrData = null;
+let currentJobId = null;
+let jobSkills = [];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadDashboard();
+});
+
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    
+    if (!token || role !== 'hr') {
+        window.location.href = '/hr/login';
+        return;
+    }
+    
+    const hr = JSON.parse(localStorage.getItem('hr') || '{}');
+    if (hr.hr_name) {
+        document.getElementById('hrName').textContent = hr.hr_name;
+    }
+}
+
+async function loadDashboard() {
+    const token = localStorage.getItem('token');
+    const hr = JSON.parse(localStorage.getItem('hr') || '{}');
+    
+    try {
+        // Load jobs and analytics in parallel
+        const [jobsRes, analyticsRes] = await Promise.all([
+            fetch('/api/hr/jobs/' + hr.id, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }),
+            fetch('/api/hr/analytics', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+        ]);
+        
+        if (jobsRes.ok) {
+            const jobsData = await jobsRes.json();
+            renderJobs(jobsData.jobs || []);
+        }
+        
+        if (analyticsRes.ok) {
+            const analytics = await analyticsRes.json();
+            renderAnalytics(analytics);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+function renderJobs(jobs) {
+    const container = document.getElementById('jobsList');
+    
+    if (jobs.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No jobs posted yet</p>
+                <button class="btn btn-primary" onclick="showPostJobModal()">
+                    <i class="fas fa-plus me-2"></i>Post Your First Job
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = jobs.map(job => `
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <h5 class="mb-0">${job.title}</h5>
+                        <span class="badge ${job.is_active ? 'bg-success' : 'bg-secondary'}">${job.is_active ? 'Active' : 'Closed'}</span>
+                    </div>
+                    <p class="text-muted mb-2">${job.description.substring(0, 150)}...</p>
+                    <div class="mb-2">
+                        ${(job.required_skills_list || []).slice(0, 5).map(skill => 
+                            `<span class="skill-tag">${skill}</span>`
+                        ).join('')}
+                    </div>
+                    <div class="d-flex gap-3">
+                        <small class="text-muted"><i class="fas fa-users me-1"></i>${job.applicant_count} Applicants</small>
+                        <small class="text-muted"><i class="fas fa-graduation-cap me-1"></i>Min ${job.min_cgpa} CGPA</small>
+                        <small class="text-muted"><i class="fas fa-code-branch me-1"></i>${job.branch}</small>
+                    </div>
+                </div>
+                <div class="text-end ms-3">
+                    <button class="btn btn-sm btn-outline-primary mb-2" onclick="showApplicants(${job.id})">
+                        <i class="fas fa-users me-1"></i> Applicants
+                    </button>
+                    <button class="btn btn-sm btn-outline-info mb-2" onclick="showRecommendations(${job.id})">
+                        <i class="fas fa-robot me-1"></i> AI Recommend
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteJob(${job.id})">
+                        <i class="fas fa-trash me-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAnalytics(analytics) {
+    // Update stats
+    document.getElementById('totalJobs').textContent = analytics.total_jobs || 0;
+    document.getElementById('activeJobs').textContent = analytics.active_jobs || 0;
+    document.getElementById('totalApplicants').textContent = analytics.total_applicants || 0;
+    document.getElementById('shortlistedCount').textContent = analytics.shortlisted || 0;
+    
+    // Update analytics sidebar
+    document.getElementById('analyticsApplied').textContent = analytics.total_applicants || 0;
+    document.getElementById('analyticsShortlisted').textContent = analytics.shortlisted || 0;
+    document.getElementById('analyticsRejected').textContent = analytics.rejected || 0;
+    
+    // Top skills
+    const skillsContainer = document.getElementById('topSkills');
+    if (analytics.top_skills && analytics.top_skills.length > 0) {
+        skillsContainer.innerHTML = analytics.top_skills.slice(0, 5).map(skill => `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="skill-tag">${skill.skill}</span>
+                <span class="badge bg-primary">${skill.count}</span>
+            </div>
+        `).join('');
+    } else {
+        skillsContainer.innerHTML = '<p class="text-muted">No data yet</p>';
+    }
+}
+
+// Post Job
+function showPostJobModal() {
+    const modal = new bootstrap.Modal(document.getElementById('postJobModal'));
+    modal.show();
+}
+
+document.getElementById('jobSkillInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const skill = this.value.trim();
+        if (skill && !jobSkills.includes(skill)) {
+            jobSkills.push(skill);
+            renderJobSkillTags();
+        }
+        this.value = '';
+    }
+});
+
+function renderJobSkillTags() {
+    const container = document.getElementById('jobSkillTags');
+    container.innerHTML = jobSkills.map(skill => `
+        <span class="skill-tag" onclick="removeJobSkill('${skill}')" style="cursor: pointer;">
+            ${skill} <i class="fas fa-times ms-1"></i>
+        </span>
+    `).join('');
+}
+
+function removeJobSkill(skill) {
+    jobSkills = jobSkills.filter(s => s !== skill);
+    renderJobSkillTags();
+}
+
+document.getElementById('postJobForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const token = localStorage.getItem('token');
+    
+    const jobData = {
+        title: document.getElementById('jobTitle').value,
+        branch: document.getElementById('jobBranch').value,
+        min_cgpa: parseFloat(document.getElementById('jobMinCGPA').value),
+        description: document.getElementById('jobDescription').value,
+        skills: jobSkills,
+        expiry_date: document.getElementById('jobExpiry').value || null
+    };
+    
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Posting...';
+    
+    try {
+        const response = await fetch('/api/hr/jobs', {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jobData)
+        });
+        
+        if (response.ok) {
+            showNotification('Job posted successfully!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('postJobModal')).hide();
+            loadDashboard();
+            this.reset();
+            jobSkills = [];
+            renderJobSkillTags();
+        } else {
+            const data = await response.json();
+            showNotification(data.error || 'Failed to post job', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error posting job', 'danger');
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-briefcase me-2"></i>Post Job';
+});
+
+// Applicants
+async function showApplicants(jobId) {
+    currentJobId = jobId;
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/jobs/' + jobId + '/applicants', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            renderApplicants(data.applicants || []);
+            
+            const modal = new bootstrap.Modal(document.getElementById('applicantsModal'));
+            modal.show();
+        }
+    } catch (error) {
+        showNotification('Error loading applicants', 'danger');
+    }
+}
+
+function renderApplicants(applicants) {
+    const tbody = document.getElementById('applicantsTable');
+    
+    if (applicants.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No applicants yet</td></tr>';
+        return;
+    }
+    
+    const statusClass = {
+        'Applied': 'badge-applied',
+        'Shortlisted': 'badge-shortlisted',
+        'Rejected': 'badge-rejected',
+        'Interview': 'badge-interview'
+    };
+    
+    tbody.innerHTML = applicants.map(app => `
+        <tr>
+            <td>
+                <strong>${app.application.student.name}</strong><br>
+                <small class="text-muted">${app.application.student.email}</small>
+            </td>
+            <td>${app.application.student.branch}</td>
+            <td>
+                <div class="progress" style="width: 80px; height: 8px;">
+                    <div class="progress-bar" style="width: ${app.resume_score}%"></div>
+                </div>
+                <small>${app.resume_score}/100</small>
+            </td>
+            <td>
+                <span class="badge bg-primary">${Math.round(app.application.match_percentage)}%</span>
+            </td>
+            <td><span class="${statusClass[app.application.status] || 'badge-applied'}">${app.application.status}</span></td>
+            <td>
+                ${app.application.status === 'Applied' ? `
+                    <button class="btn btn-sm btn-success me-1" onclick="shortlistCandidate(${app.application.id})">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="rejectCandidate(${app.application.id})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                ` : ''}
+                ${app.application.status === 'Shortlisted' ? `
+                    <button class="btn btn-sm btn-warning" onclick="sendInterviewEmail(${app.application.id})">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                ` : ''}
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function shortlistCandidate(appId) {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/applications/' + appId + '/shortlist', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            showNotification('Candidate shortlisted!', 'success');
+            showApplicants(currentJobId);
+            loadDashboard();
+        }
+    } catch (error) {
+        showNotification('Error', 'danger');
+    }
+}
+
+async function rejectCandidate(appId) {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/applications/' + appId + '/reject', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            showNotification('Candidate rejected', 'info');
+            showApplicants(currentJobId);
+            loadDashboard();
+        }
+    } catch (error) {
+        showNotification('Error', 'danger');
+    }
+}
+
+async function sendInterviewEmail(appId) {
+    const message = prompt('Enter interview message:');
+    if (!message) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/send-interview', {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ application_id: appId, message })
+        });
+        
+        if (response.ok) {
+            showNotification('Interview email sent!', 'success');
+            showApplicants(currentJobId);
+        }
+    } catch (error) {
+        showNotification('Error sending email', 'danger');
+    }
+}
+
+// AI Recommendations
+async function showRecommendations(jobId) {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/jobs/' + jobId + '/recommended', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            renderRecommendations(data.recommendations || []);
+            
+            const modal = new bootstrap.Modal(document.getElementById('recommendationsModal'));
+            modal.show();
+        }
+    } catch (error) {
+        showNotification('Error loading recommendations', 'danger');
+    }
+}
+
+function renderRecommendations(recommendations) {
+    const tbody = document.getElementById('recommendationsTable');
+    
+    if (recommendations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No recommendations</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = recommendations.map(rec => `
+        <tr>
+            <td>
+                <strong>${rec.student.name}</strong><br>
+                <small class="text-muted">${rec.student.email}</small>
+            </td>
+            <td>${rec.student.branch}</td>
+            <td>
+                ${(rec.student.skills || []).slice(0, 3).map(s => `<span class="skill-tag">${s}</span>`).join('')}
+            </td>
+            <td>
+                <span class="badge bg-secondary">${rec.resume_score || 0}</span>
+            </td>
+            <td>
+                <span class="badge bg-success">${Math.round(rec.match_score)}%</span>
+            </td>
+            <td>
+                ${rec.has_applied ? '<span class="badge bg-primary">Yes</span>' : '<span class="badge bg-warning">No</span>'}
+            </td>
+            <td>
+                ${!rec.has_applied ? `
+                    <button class="btn btn-sm btn-primary" onclick="quickApply(${rec.student.id})">
+                        <i class="fas fa-plus me-1"></i> Add
+                    </button>
+                ` : '<span class="text-muted">Applied</span>'}
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function quickApply(studentId) {
+    showNotification('Feature coming soon!', 'info');
+}
+
+// Delete Job
+async function deleteJob(jobId) {
+    if (!confirm('Are you sure you want to delete this job?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/hr/jobs/' + jobId, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            showNotification('Job deleted', 'success');
+            loadDashboard();
+        }
+    } catch (error) {
+        showNotification('Error deleting job', 'danger');
+    }
+}
+
+// Filter
+function filterApplicants() {
+    showNotification('Filter applied', 'success');
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('hr');
+    localStorage.removeItem('userRole');
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

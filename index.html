@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Skill-Link - AI-Driven Campus Placement Platform{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-link"></i>
+            Skill-Link
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#stats">Statistics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">About</a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link btn btn-light" href="/student/login">
+                        <i class="fas fa-user-graduate"></i> Student Login
+                    </a>
+                </li>
+                <li class="nav-item ms-2">
+                    <a class="nav-link btn btn-outline-light" href="/hr/login">
+                        <i class="fas fa-briefcase"></i> HR Login
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title fade-in-up">
+                    🎯 AI-Powered Campus<br>Placement Platform
+                </h1>
+                <p class="hero-subtitle fade-in-up" style="animation-delay: 0.2s;">
+                    Connect with top companies through intelligent matching. 
+                    CareerBot guides your career journey with personalized recommendations.
+                </p>
+                <div class="fade-in-up" style="animation-delay: 0.4s;">
+                    <a href="/student/signup" class="btn btn-light btn-hero me-3">
+                        <i class="fas fa-user-plus"></i> Student Sign Up
+                    </a>
+                    <a href="/hr/signup" class="btn btn-outline-light btn-hero">
+                        <i class="fas fa-building"></i> Register Company
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center mt-5 mt-lg-0">
+                <div class="hero-animation">
+                    <div style="font-size: 150px; opacity: 0.3;">🤖</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section" id="stats">
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">Students</div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-number">200+</div>
+                    <div class="stat-label">Companies</div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Jobs Posted</div>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="stat-item">
+                    <div class="stat-number">80%</div>
+                    <div class="stat-label">Placement Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="font-size: 42px; font-weight: 700;">🚀 Powerful Features</h2>
+            <p style="font-size: 18px; color: #666;">Everything you need for a successful career</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- AI Resume Parser -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h4>AI Resume Parser</h4>
+                    <p>Automatically extract skills, education, and experience from your resume using advanced NLP.</p>
+                </div>
+            </div>
+            
+            <!-- Resume Scoring -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h4>Resume Scoring</h4>
+                    <p>Get a score out of 100 with personalized suggestions to improve your resume.</p>
+                </div>
+            </div>
+            
+            <!-- Job Matching -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4>AI Job Matching</h4>
+                    <p>Smart algorithm matches your skills with job requirements for best fit.</p>
+                </div>
+            </div>
+            
+            <!-- CareerBot -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>CareerBot Assistant</h4>
+                    <p>AI-powered chatbot to guide you with resume tips, interview prep, and career advice.</p>
+                </div>
+            </div>
+            
+            <!-- Learning Paths -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h4>Learning Paths</h4>
+                    <p>Get personalized roadmaps to learn missing skills and land your dream job.</p>
+                </div>
+            </div>
+            
+            <!-- Application Tracking -->
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Application Tracking</h4>
+                    <p>Track your applications from Applied to Shortlisted to Selected in real-time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HR Features -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="font-size: 42px; font-weight: 700;">🏢 For Recruiters</h2>
+            <p style="font-size: 18px; color: #666;">Powerful tools to find the best talent</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div style="font-size: 48px; color: var(--primary); margin-bottom: 15px;">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h5>Post Jobs</h5>
+                    <p class="text-muted">Create job listings with required skills</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div style="font-size: 48px; color: var(--primary); margin-bottom: 15px;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5>Manage Applicants</h5>
+                    <p class="text-muted">View, shortlist, and reject candidates</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div style="font-size: 48px; color: var(--primary); margin-bottom: 15px;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h5>AI Recommendations</h5>
+                    <p class="text-muted">Get auto-suggested best matching students</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div style="font-size: 48px; color: var(--primary); margin-bottom: 15px;">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h5>Analytics</h5>
+                    <p class="text-muted">Track hiring metrics and skill demands</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5" id="about">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 style="font-size: 42px; font-weight: 700; margin-bottom: 20px;">
+                    About Skill-Link
+                </h2>
+                <p style="font-size: 18px; color: #666; margin-bottom: 20px;">
+                    Skill-Link is an AI-driven campus placement platform developed by 
+                    <strong>Team Arena</strong> to bridge the gap between talented students 
+                    and top companies.
+                </p>
+                <div class="row">
+                    <div class="col-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Smart Job Matching</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Resume Analysis</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Career Guidance</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Analytics Dashboard</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Interview Tracking</li>
+                            <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> 24/7 CareerBot</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="p-5" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); border-radius: 20px; color: white;">
+                    <h3 style="font-weight: 700; margin-bottom: 15px;">🤖 Meet CareerBot</h3>
+                    <p style="font-size: 18px;">Your AI Career Assistant</p>
+                    <p>Available 24/7 to help with:</p>
+                    <ul class="list-unstyled text-start" style="display: inline-block;">
+                        <li class="mb-2">📝 Resume tips and feedback</li>
+                        <li class="mb-2">🎯 Interview preparation</li>
+                        <li class="mb-2">📚 Learning recommendations</li>
+                        <li class="mb-2">💼 Job search strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 style="font-size: 42px; font-weight: 700;">👥 Team Arena</h2>
+            <p style="font-size: 18px; color: #666;">The minds behind Skill-Link</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-2 col-6 text-center mb-4">
+                <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h6>Soumy Chavhan</h6>
+                <p class="text-muted small">Team Lead</p>
+            </div>
+            <div class="col-md-2 col-6 text-center mb-4">
+                <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h6>Rudra Gupta</h6>
+                <p class="text-muted small">Backend Lead</p>
+            </div>
+            <div class="col-md-2 col-6 text-center mb-4">
+                <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h6>Atharva Dongre</h6>
+                <p class="text-muted small">AI Engineer</p>
+            </div>
+            <div class="col-md-2 col-6 text-center mb-4">
+                <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h6>Ishan Ukey</h6>
+                <p class="text-muted small">Frontend Lead</p>
+            </div>
+            <div class="col-md-2 col-6 text-center mb-4">
+                <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; color: white; font-size: 36px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h6>Avyesh Bhiwapurkar</h6>
+                <p class="text-muted small">Database Engineer</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
+    <div class="container text-center">
+        <h2 style="font-size: 42px; font-weight: 700; color: white; margin-bottom: 20px;">
+            Ready to Start Your Career Journey?
+        </h2>
+        <p style="font-size: 20px; color: rgba(255,255,255,0.9); margin-bottom: 30px;">
+            Join thousands of students who found their dream jobs through Skill-Link
+        </p>
+        <div>
+            <a href="/student/signup" class="btn btn-light btn-hero me-3">
+                <i class="fas fa-user-plus"></i> Student Sign Up
+            </a>
+            <a href="/hr/signup" class="btn btn-outline-light btn-hero">
+                <i class="fas fa-building"></i> Register Company
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h5><i class="fas fa-link me-2"></i>Skill-Link</h5>
+                <p>AI-Driven Campus Placement Platform connecting talent with opportunity.</p>
+                <div>
+                    <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                    <a href="#"><i class="fab fa-instagram fa-lg"></i></a>
+                </div>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5>For Students</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/student/login">Login</a></li>
+                    <li><a href="/student/signup">Sign Up</a></li>
+                    <li><a href="#">Browse Jobs</a></li>
+                    <li><a href="#">Resume Tips</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5>For HR</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/hr/login">Login</a></li>
+                    <li><a href="/hr/signup">Register</a></li>
+                    <li><a href="#">Post Jobs</a></li>
+                    <li><a href="#">Find Talent</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5>Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-envelope me-2"></i> info@skill-link.com</li>
+                    <li><i class="fas fa-phone me-2"></i> +91 1234567890</li>
+                    <li><i class="fas fa-map-marker me-2"></i> India</li>
+                </ul>
+            </div>
+        </div>
+        <hr style="border-color: rgba(255,255,255,0.1);">
+        <div class="text-center">
+            <p class="mb-0">© 2024 Skill-Link. Built with ❤️ by Team Arena</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}AI Mock Test - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/resume"><i class="fas fa-upload"></i> Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/skills"><i class="fas fa-tags"></i> Skills</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/gap-analyzer"><i class="fas fa-search-minus"></i> AI Gap Analyzer</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard/student/mock-test"><i class="fas fa-clipboard-check"></i> AI Mock Test</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-graduate"></i> <span id="userName">Student</span></a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <!-- Skill Selection -->
+    <div class="dashboard-card mb-4" id="skillSelection">
+        <h4 class="mb-4"><i class="fas fa-clipboard-check text-primary me-2"></i>AI Mock Test Simulator</h4>
+        <p class="text-muted">Test your knowledge with AI-generated questions</p>
+        
+        <div class="mb-4">
+            <label class="form-label">Select a Skill to Test</label>
+            <div class="row">
+                <div class="col-md-8">
+                    <select class="form-select" id="skillSelect">
+                        <option value="">Choose a skill...</option>
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="SQL">SQL</option>
+                        <option value="Java">Java</option>
+                        <option value="React">React</option>
+                        <option value="Aptitude">Aptitude</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" onclick="startTest()">
+                        <i class="fas fa-play me-2"></i>Start Test
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Note:</strong> Each test contains 5 random questions. You will receive instant feedback and suggestions for improvement.
+        </div>
+    </div>
+    
+    <!-- Test Questions -->
+    <div class="dashboard-card mb-4" id="testArea" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i><span id="testSkill">Test</span> - Question <span id="questionNum">1</span>/5</h4>
+            <button class="btn btn-secondary btn-sm" onclick="resetTest()">Change Skill</button>
+        </div>
+        
+        <div id="questionsContainer">
+            <!-- Questions will be loaded here -->
+        </div>
+        
+        <div class="text-center mt-4">
+            <button class="btn btn-success btn-lg" onclick="submitTest()">
+                <i class="fas fa-check me-2"></i>Submit Test
+            </button>
+        </div>
+    </div>
+    
+    <!-- Results -->
+    <div class="dashboard-card" id="resultsArea" style="display: none;">
+        <h4 class="mb-4"><i class="fas fa-trophy text-warning me-2"></i>Test Results</h4>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white text-center">
+                    <div class="card-body">
+                        <h2 id="scorePercent">0%</h2>
+                        <p class="mb-0">Score</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white text-center">
+                    <div class="card-body">
+                        <h2 id="correctCount">0</h2>
+                        <p class="mb-0">Correct</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white text-center">
+                    <div class="card-body">
+                        <h2 id="incorrectCount">0</h2>
+                        <p class="mb-0">Incorrect</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-4" id="suggestionsArea">
+            <h5><i class="fas fa-lightbulb text-warning me-2"></i>Suggestions</h5>
+            <ul class="list-group" id="suggestionsList">
+            </ul>
+        </div>
+        
+        <div class="mb-4" id="answersReview">
+            <h5><i class="fas fa-list text-info me-2"></i>Answers Review</h5>
+            <div id="answersContainer">
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <button class="btn btn-primary" onclick="resetTest()">
+                <i class="fas fa-redo me-2"></i>Take Another Test
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+var currentSkill = '';
+var questions = [];
+var userAnswers = {};
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+});
+
+function checkAuth() {
+    var token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('userRole') !== 'student') {
+        window.location.href = '/student/login';
+    }
+    var student = JSON.parse(localStorage.getItem('student') || '{}');
+    document.getElementById('userName').textContent = student.name || 'Student';
+}
+
+async function startTest() {
+    var skill = document.getElementById('skillSelect').value;
+    if (!skill) {
+        showNotification('Please select a skill', 'warning');
+        return;
+    }
+    
+    currentSkill = skill;
+    document.getElementById('testSkill').textContent = skill;
+    
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/ai/mock-test/' + skill, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            var data = await response.json();
+            questions = data.questions;
+            userAnswers = {};
+            displayQuestions();
+            document.getElementById('skillSelection').style.display = 'none';
+            document.getElementById('testArea').style.display = 'block';
+            document.getElementById('resultsArea').style.display = 'none';
+        } else {
+            showNotification('Failed to load questions', 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error loading test', 'danger');
+    }
+}
+
+function displayQuestions() {
+    var container = document.getElementById('questionsContainer');
+    var html = '';
+    
+    questions.forEach(function(q, index) {
+        html += '<div class="mb-4 p-3 border rounded">';
+        html += '<p class="fw-bold mb-3">Q' + (index + 1) + '. ' + q.question + '</p>';
+        
+        q.options.forEach(function(opt) {
+            var isChecked = userAnswers[q.id] === opt ? 'checked' : '';
+            html += '<div class="form-check mb-2">';
+            html += '<input class="form-check-input" type="radio" name="q' + q.id + '" value="' + opt + '" ' + isChecked + ' onchange="selectAnswer(' + q.id + ', \'' + opt + '\')">';
+            html += '<label class="form-check-label">' + opt + '</label>';
+            html += '</div>';
+        });
+        
+        html += '</div>';
+    });
+    
+    container.innerHTML = html;
+    document.getElementById('questionNum').textContent = '1';
+}
+
+function selectAnswer(qId, answer) {
+    userAnswers[qId] = answer;
+}
+
+async function submitTest() {
+    if (Object.keys(userAnswers).length < 5) {
+        showNotification('Please answer all questions', 'warning');
+        return;
+    }
+    
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/ai/mock-test/submit', {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                skill: currentSkill,
+                answers: userAnswers
+            })
+        });
+        
+        if (response.ok) {
+            var data = await response.json();
+            displayResults(data);
+        } else {
+            showNotification('Failed to submit test', 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error submitting test', 'danger');
+    }
+}
+
+function displayResults(data) {
+    document.getElementById('testArea').style.display = 'none';
+    document.getElementById('resultsArea').style.display = 'block';
+    
+    document.getElementById('scorePercent').textContent = Math.round(data.percentage) + '%';
+    document.getElementById('correctCount').textContent = data.correct;
+    document.getElementById('incorrectCount').textContent = data.incorrect;
+    
+    // Suggestions
+    var suggestionsList = document.getElementById('suggestionsList');
+    if (data.suggestions && data.suggestions.length > 0) {
+        suggestionsList.innerHTML = data.suggestions.map(function(s) {
+            return '<li class="list-group-item"><i class="fas fa-lightbulb text-warning me-2"></i>' + s + '</li>';
+        }).join('');
+    } else {
+        suggestionsList.innerHTML = '<li class="list-group-item text-success">Great job! Keep up the good work!</li>';
+    }
+    
+    // Answers review
+    var answersContainer = document.getElementById('answersContainer');
+    var html = '';
+    
+    data.results.forEach(function(r, index) {
+        var bgClass = r.is_correct ? 'border-success' : 'border-danger';
+        var icon = r.is_correct ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>';
+        
+        html += '<div class="mb-3 p-3 border ' + bgClass + ' rounded">';
+        html += '<p class="fw-bold mb-2">' + icon + ' Q' + (index + 1) + ': ' + r.question + '</p>';
+        html += '<p class="mb-1">Your answer: <span class="' + (r.is_correct ? 'text-success' : 'text-danger') + '">' + (r.your_answer || 'Not answered') + '</span></p>';
+        if (!r.is_correct) {
+            html += '<p class="mb-0 text-success">Correct: ' + r.correct_answer + '</p>';
+        }
+        html += '</div>';
+    });
+    
+    answersContainer.innerHTML = html;
+}
+
+function resetTest() {
+    document.getElementById('skillSelection').style.display = 'block';
+    document.getElementById('testArea').style.display = 'none';
+    document.getElementById('resultsArea').style.display = 'none';
+    document.getElementById('skillSelect').value = '';
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

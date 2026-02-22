@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Skill Demand Analytics - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard/hr"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/hr/jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/hr/applicants"><i class="fas fa-users"></i> Applicants</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard/hr/skill-demand"><i class="fas fa-chart-bar"></i> Skill Demand</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-tie"></i> <span id="userName">HR</span></a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-card mb-4">
+        <h4 class="mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>Skill Demand Analytics</h4>
+        <p class="text-muted">Analyze the most demanded skills across all job postings</p>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3 id="totalJobs">0</h3>
+                        <p class="mb-0">Total Jobs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 id="totalSkills">0</h3>
+                        <p class="mb-0">Unique Skills</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 id="highDemandCount">0</h3>
+                        <p class="mb-0">High Demand Skills</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- High Demand Skills -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-fire me-2"></i>High Demand Skills</h6>
+                    </div>
+                    <div class="card-body" id="highDemandSkills">
+                        <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medium Demand Skills -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-warning text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Medium Demand Skills</h6>
+                    </div>
+                    <div class="card-body" id="mediumDemandSkills">
+                        <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Low Demand Skills -->
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Low Demand Skills</h6>
+                    </div>
+                    <div class="card-body" id="lowDemandSkills">
+                        <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- All Skills Bar Chart -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Skill Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div id="skillChart" class="mb-3">
+                    <div class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TPO Section -->
+        <div class="alert alert-info mt-4">
+            <h5><i class="fas fa-graduation-cap me-2"></i>For Training & Placement Officers (TPO)</h5>
+            <p class="mb-0">This data helps understand market demand. Consider organizing training sessions for high-demand skills to improve student placement rates.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadSkillDemand();
+});
+
+function checkAuth() {
+    var token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('userRole') !== 'hr') {
+        window.location.href = '/hr/login';
+    }
+    var hr = JSON.parse(localStorage.getItem('hr') || '{}');
+    document.getElementById('userName').textContent = hr.hr_name || 'HR';
+}
+
+async function loadSkillDemand() {
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/ai/analytics/skill-demand', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            var data = await response.json();
+            displaySkillDemand(data);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displaySkillDemand(data) {
+    // Summary cards
+    document.getElementById('totalJobs').textContent = data.total_jobs || 0;
+    document.getElementById('totalSkills').textContent = data.total_unique_skills || 0;
+    document.getElementById('highDemandCount').textContent = (data.high_demand_skills || []).length;
+    
+    // High demand skills
+    var highDemandDiv = document.getElementById('highDemandSkills');
+    if (data.high_demand_skills && data.high_demand_skills.length > 0) {
+        highDemandDiv.innerHTML = data.high_demand_skills.map(function(skill) {
+            var width = Math.max(skill.percentage, 20);
+            return '<div class="mb-3">' +
+                '<div class="d-flex justify-content-between mb-1">' +
+                '<span>' + skill.skill + '</span>' +
+                '<span class="badge bg-danger">' + skill.count + '</span>' +
+                '</div>' +
+                '<div class="progress" style="height: 8px;">' +
+                '<div class="progress-bar bg-danger" style="width: ' + width + '%"></div>' +
+                '</div>' +
+                '</div>';
+        }).join('');
+    } else {
+        highDemandDiv.innerHTML = '<p class="text-muted text-center">No high demand skills data</p>';
+    }
+    
+    // Medium demand skills
+    var mediumDemandDiv = document.getElementById('mediumDemandSkills');
+    if (data.medium_demand_skills && data.medium_demand_skills.length > 0) {
+        mediumDemandDiv.innerHTML = data.medium_demand_skills.map(function(skill) {
+            return '<span class="skill-tag me-2 mb-2">' + skill.skill + ' <span class="badge bg-warning">' + skill.count + '</span></span>';
+        }).join('');
+    } else {
+        mediumDemandDiv.innerHTML = '<p class="text-muted text-center">No medium demand skills data</p>';
+    }
+    
+    // Low demand skills
+    var lowDemandDiv = document.getElementById('lowDemandSkills');
+    if (data.low_demand_skills && data.low_demand_skills.length > 0) {
+        lowDemandDiv.innerHTML = data.low_demand_skills.map(function(skill) {
+            return '<span class="skill-tag me-2 mb-2" style="background: #6c757d; color: white;">' + skill.skill + ' <span class="badge bg-secondary">' + skill.count + '</span></span>';
+        }).join('');
+    } else {
+        lowDemandDiv.innerHTML = '<p class="text-muted text-center">No low demand skills data</p>';
+    }
+    
+    // Skill chart
+    var chartDiv = document.getElementById('skillChart');
+    if (data.all_skills && data.all_skills.length > 0) {
+        var maxCount = data.all_skills[0].count;
+        chartDiv.innerHTML = data.all_skills.slice(0, 15).map(function(skill) {
+            var width = (skill.count / maxCount) * 100;
+            var color = width > 60 ? '#dc3545' : (width > 30 ? '#ffc107' : '#6c757d');
+            return '<div class="mb-2">' +
+                '<div class="d-flex justify-content-between mb-1" style="font-size: 12px;">' +
+                '<span>' + skill.skill + '</span>' +
+                '<span>' + skill.count + '</span>' +
+                '</div>' +
+                '<div class="progress" style="height: 20px;">' +
+                '<div class="progress-bar" style="width: ' + width + '%; background: ' + color + ';"></div>' +
+                '</div>' +
+                '</div>';
+        }).join('');
+    } else {
+        chartDiv.innerHTML = '<p class="text-muted text-center">No skill data available</p>';
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

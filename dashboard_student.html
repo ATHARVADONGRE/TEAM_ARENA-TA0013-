@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-link"></i>
+            Skill-Link
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard/student">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/jobs">
+                        <i class="fas fa-briefcase"></i> Jobs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/applications">
+                        <i class="fas fa-file-alt"></i> Applications
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/resume">
+                        <i class="fas fa-upload"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/skills">
+                        <i class="fas fa-tags"></i> Skills
+                    </a>
+                </li>
+                <!-- NEW AI Features -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/gap-analyzer">
+                        <i class="fas fa-search-minus"></i> AI Gap Analyzer
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/mock-test">
+                        <i class="fas fa-clipboard-check"></i> AI Mock Test
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <span class="nav-link" style="cursor: pointer;" id="userName">
+                        <i class="fas fa-user-graduate"></i> Welcome
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-light ms-2" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="dashboard-card">
+                <div class="text-center mb-4">
+                    <div style="width: 80px; height: 80px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="fas fa-user-graduate fa-2x text-white"></i>
+                    </div>
+                    <h5 id="studentName">Student Name</h5>
+                    <p class="text-muted mb-1" id="studentBranch">Branch</p>
+                    <p class="text-muted" id="studentYear">Class of 2025</p>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Your Skills</small>
+                    <div id="studentSkills" class="mt-2">
+                        <!-- Skills will be loaded here -->
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Resume Score</small>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="progress flex-grow-1" style="height: 10px;">
+                            <div class="progress-bar" id="resumeScoreBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <span class="ms-2 fw-bold" id="resumeScore">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <h6 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                <button class="btn btn-outline-primary w-100 mb-2" onclick="showResumeUpload()">
+                    <i class="fas fa-upload me-2"></i>Upload Resume
+                </button>
+                <button class="btn btn-outline-primary w-100 mb-2" onclick="showSkillsModal()">
+                    <i class="fas fa-tags me-2"></i>Update Skills
+                </button>
+                <button class="btn btn-outline-primary w-100 mb-2" href="/dashboard/student/gap-analyzer">
+                    <i class="fas fa-search-minus me-2"></i>AI Gap Analyzer
+                </button>
+                <button class="btn btn-outline-primary w-100" href="/dashboard/student/mock-test">
+                    <i class="fas fa-clipboard-check me-2"></i>AI Mock Test
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
+                        <h3 id="totalApps">0</h3>
+                        <p><i class="fas fa-paper-plane me-2"></i>Applied</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);">
+                        <h3 id="shortlisted">0</h3>
+                        <p><i class="fas fa-check-circle me-2"></i>Shortlisted</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);">
+                        <h3 id="interview">0</h3>
+                        <p><i class="fas fa-calendar me-2"></i>Interview</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #2ec4b6 0%, #20a4f3 100%);">
+                        <h3 id="selected">0</h3>
+                        <p><i class="fas fa-trophy me-2"></i>Selected</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Features Banner -->
+            <div class="dashboard-card mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5><i class="fas fa-robot me-2"></i>New AI Features</h5>
+                        <p class="mb-0">Try our AI Gap Analyzer to find skill gaps and AI Mock Test to practice!</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="/dashboard/student/gap-analyzer" class="btn btn-light me-2">Gap Analyzer</a>
+                        <a href="/dashboard/student/mock-test" class="btn btn-light">Mock Test</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommended Jobs -->
+            <div class="dashboard-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i>Recommended Jobs</h5>
+                    <button class="btn btn-sm btn-primary" onclick="refreshJobs()">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+                <div id="recommendedJobs">
+                    <!-- Jobs will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Loading jobs...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applied Jobs -->
+            <div class="dashboard-card" id="applications">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0"><i class="fas fa-list text-info me-2"></i>Application Status</h5>
+                </div>
+                <div id="appliedJobs">
+                    <!-- Applications will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Loading applications...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resume Upload Modal -->
+<div class="modal fade" id="resumeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Upload Resume</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea" style="border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 10px; cursor: pointer;">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                    <p>Drag & drop your resume here or click to browse</p>
+                    <p class="text-muted small">Supported: PDF, DOC, DOCX</p>
+                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" style="display: none;">
+                </div>
+                <div id="fileInfo" class="mt-3" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-file-alt me-2"></i>
+                        <span id="fileName"></span>
+                    </div>
+                </div>
+                <div id="uploadProgress" class="mt-3" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-center mt-2">Uploading...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="uploadResume()" id="uploadBtn">
+                    <i class="fas fa-upload me-2"></i>Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Skills Modal -->
+<div class="modal fade" id="skillsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-tags me-2"></i>Update Your Skills</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Add skills relevant to your career (press Enter after each skill)</p>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="skillInput" placeholder="Type a skill and press Enter">
+                </div>
+                <div id="skillTags" class="mb-3">
+                    <!-- Skill tags will appear here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="saveSkills()">
+                    <i class="fas fa-save me-2"></i>Save Skills
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-area:hover {
+    border-color: var(--primary) !important;
+    background: #f8f9fa;
+}
+</style>
+
+<script>
+// Global variables
+let studentData = null;
+let selectedFile = null;
+let currentSkills = [];
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadDashboard();
+});
+
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    
+    if (!token || role !== 'student') {
+        window.location.href = '/student/login';
+        return;
+    }
+    
+    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    if (student.name) {
+        document.getElementById('studentName').textContent = student.name;
+        document.getElementById('userName').textContent = student.name;
+        document.getElementById('studentBranch').textContent = student.branch || '';
+        document.getElementById('studentYear').textContent = 'Class of ' + (student.grad_year || '');
+    }
+}
+
+async function loadDashboard() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/students/dashboard', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            studentData = data;
+            updateDashboard(data);
+        } else {
+            showNotification('Failed to load dashboard', 'danger');
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+function updateDashboard(data) {
+    // Update stats
+    document.getElementById('totalApps').textContent = data.total_applications || 0;
+    document.getElementById('shortlisted').textContent = data.shortlisted || 0;
+    document.getElementById('interview').textContent = data.interview || 0;
+    document.getElementById('selected').textContent = data.selected || 0;
+    
+    // Update profile
+    if (data.profile) {
+        document.getElementById('studentName').textContent = data.profile.name;
+        document.getElementById('userName').textContent = data.profile.name;
+        document.getElementById('studentBranch').textContent = data.profile.branch;
+        document.getElementById('studentYear').textContent = 'Class of ' + data.profile.grad_year;
+    }
+    
+    // Update resume score
+    const score = data.resume_score || 0;
+    document.getElementById('resumeScore').textContent = score;
+    document.getElementById('resumeScoreBar').style.width = score + '%';
+    
+    // Update skills
+    if (data.profile && data.profile.skills) {
+        currentSkills = data.profile.skills;
+        renderSkills(data.profile.skills, 'studentSkills');
+    }
+    
+    // Render recommended jobs
+    renderRecommendedJobs(data.recommended_jobs || []);
+    
+    // Render applied jobs
+    renderAppliedJobs(data.applied_jobs || []);
+}
+
+function renderSkills(skills, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = skills.map(skill => 
+        `<span class="skill-tag">${skill}</span>`
+    ).join('') || '<span class="text-muted">No skills added</span>';
+}
+
+function renderRecommendedJobs(jobs) {
+    const container = document.getElementById('recommendedJobs');
+    
+    if (jobs.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No recommended jobs found</p>
+                <p class="text-muted small">Update your skills to get better recommendations</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = jobs.map(job => `
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-1">${job.job.title}</h5>
+                    <p class="text-muted mb-2">${job.job.description.substring(0, 100)}...</p>
+                    <div class="mb-2">
+                        ${(job.job.required_skills_list || []).slice(0, 5).map(skill => 
+                            `<span class="skill-tag">${skill}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <div class="mb-2">
+                        <span class="badge bg-success">${job.match_score}% Match</span>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="applyJob(${job.job.id})">
+                        <i class="fas fa-paper-plane me-1"></i> Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAppliedJobs(applications) {
+    const container = document.getElementById('appliedJobs');
+    
+    if (applications.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No applications yet</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const statusClass = {
+        'Applied': 'badge-applied',
+        'Shortlisted': 'badge-shortlisted',
+        'Rejected': 'badge-rejected',
+        'Interview': 'badge-interview',
+        'Selected': 'badge-success'
+    };
+    
+    container.innerHTML = applications.map(app => `
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">${app.job.title}</h6>
+                    <p class="text-muted small mb-0">Applied on ${new Date(app.application.applied_at).toLocaleDateString()}</p>
+                </div>
+                <div class="text-end">
+                    <span class="${statusClass[app.application.status] || 'badge-applied'}">${app.application.status}</span>
+                    ${app.application.status === 'Shortlisted' ? '<br><small class="text-success mt-1 d-block">Good luck!</small>' : ''}
+                    ${app.application.status === 'Interview' ? '<br><small class="text-warning mt-1 d-block">Prepare for interview!</small>' : ''}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Resume Upload
+function showResumeUpload() {
+    const modal = new bootstrap.Modal(document.getElementById('resumeModal'));
+    modal.show();
+}
+
+document.getElementById('uploadArea').addEventListener('click', function() {
+    document.getElementById('resumeFile').click();
+});
+
+document.getElementById('resumeFile').addEventListener('change', function(e) {
+    if (this.files[0]) {
+        selectedFile = this.files[0];
+        document.getElementById('fileName').textContent = selectedFile.name;
+        document.getElementById('fileInfo').style.display = 'block';
+    }
+});
+
+async function uploadResume() {
+    if (!selectedFile) {
+        showNotification('Please select a file', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    const token = localStorage.getItem('token');
+    const btn = document.getElementById('uploadBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Uploading...';
+    
+    try {
+        const response = await fetch('/api/resume/upload', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification('Resume uploaded! Score: ' + data.score, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('resumeModal')).hide();
+            loadDashboard();
+        } else {
+            showNotification(data.error || 'Upload failed', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error uploading resume', 'danger');
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-upload me-2"></i>Upload';
+}
+
+// Skills
+function showSkillsModal() {
+    const modal = new bootstrap.Modal(document.getElementById('skillsModal'));
+    modal.show();
+    renderSkillTags();
+}
+
+function renderSkillTags() {
+    const container = document.getElementById('skillTags');
+    container.innerHTML = currentSkills.map(skill => `
+        <span class="skill-tag" onclick="removeSkill('${skill}')" style="cursor: pointer;">
+            ${skill} <i class="fas fa-times ms-1"></i>
+        </span>
+    `).join('');
+}
+
+document.getElementById('skillInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const skill = this.value.trim();
+        if (skill && !currentSkills.includes(skill)) {
+            currentSkills.push(skill);
+            renderSkillTags();
+        }
+        this.value = '';
+    }
+});
+
+function removeSkill(skill) {
+    currentSkills = currentSkills.filter(s => s !== skill);
+    renderSkillTags();
+}
+
+async function saveSkills() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/students/skills', {
+            method: 'POST',
+            headers: { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ skills: currentSkills })
+        });
+        
+        if (response.ok) {
+            showNotification('Skills saved!', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('skillsModal')).hide();
+            loadDashboard();
+        } else {
+            showNotification('Failed to save skills', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error saving skills', 'danger');
+    }
+}
+
+// Apply Job
+async function applyJob(jobId) {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('/api/students/jobs/apply/' + jobId, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showNotification('Job applied successfully!', 'success');
+            loadDashboard();
+        } else {
+            showNotification(data.error || 'Failed to apply', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error applying for job', 'danger');
+    }
+}
+
+// Refresh
+function refreshDashboard() {
+    loadDashboard();
+}
+
+function refreshJobs() {
+    loadDashboard();
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('student');
+    localStorage.removeItem('userRole');
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

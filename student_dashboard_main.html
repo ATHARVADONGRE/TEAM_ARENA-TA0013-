@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-link"></i> Skill-Link
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard/student">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/jobs">
+                        <i class="fas fa-briefcase"></i> Jobs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/applications">
+                        <i class="fas fa-file-alt"></i> Applications
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/resume">
+                        <i class="fas fa-upload"></i> Resume
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/student/skills">
+                        <i class="fas fa-tags"></i> Skills
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-graduate"></i> <span id="userName">Student</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid py-4">
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
+                <h3 id="totalApps">0</h3>
+                <p><i class="fas fa-paper-plane me-2"></i>Applied</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);">
+                <h3 id="shortlisted">0</h3>
+                <p><i class="fas fa-check-circle me-2"></i>Shortlisted</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);">
+                <h3 id="interview">0</h3>
+                <p><i class="fas fa-calendar me-2"></i>Interview</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #2ec4b6 0%, #20a4f3 100%);">
+                <h3 id="selected">0</h3>
+                <p><i class="fas fa-trophy me-2"></i>Selected</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="dashboard-card">
+                <div class="text-center mb-3">
+                    <div style="width: 60px; height: 60px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
+                        <i class="fas fa-user-graduate fa-lg text-white"></i>
+                    </div>
+                    <h6 id="studentName">Student Name</h6>
+                    <p class="text-muted small mb-1" id="studentBranch">Branch</p>
+                    <p class="text-muted small" id="studentYear">Class of 2025</p>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Resume Score</small>
+                    <div class="d-flex align-items-center mt-1">
+                        <div class="progress flex-grow-1" style="height: 8px;">
+                            <div class="progress-bar" id="resumeScoreBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <span class="ms-2 fw-bold small" id="resumeScore">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h6 class="mb-3"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                <a href="/dashboard/student/resume" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-upload me-2"></i>Upload Resume
+                </a>
+                <a href="/dashboard/student/skills" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-tags me-2"></i>Update Skills
+                </a>
+                <a href="/dashboard/student/jobs" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Browse Jobs
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Recommended Jobs -->
+            <div class="dashboard-card">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="mb-0"><i class="fas fa-star text-warning me-2"></i>Recommended Jobs</h5>
+                    <a href="/dashboard/student/jobs" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div id="recommendedJobs">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- <div class="dashboard-card mt- Applied Jobs -->
+           4">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="mb-0"><i class="fas fa-list text-info me-2"></i>Recent Applications</h5>
+                    <a href="/dashboard/student/applications" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div id="appliedJobs">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let studentData = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadDashboard();
+});
+
+function checkAuth() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    if (!token || role !== 'student') {
+        window.location.href = '/student/login';
+        return;
+    }
+    const student = JSON.parse(localStorage.getItem('student') || '{}');
+    if (student.name) {
+        document.getElementById('studentName').textContent = student.name;
+        document.getElementById('userName').textContent = student.name;
+        document.getElementById('studentBranch').textContent = student.branch || '';
+        document.getElementById('studentYear').textContent = 'Class of ' + (student.grad_year || '');
+    }
+}
+
+async function loadDashboard() {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('/api/students/dashboard', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            studentData = data;
+            updateDashboard(data);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function updateDashboard(data) {
+    document.getElementById('totalApps').textContent = data.total_applications || 0;
+    document.getElementById('shortlisted').textContent = data.shortlisted || 0;
+    document.getElementById('interview').textContent = data.interview || 0;
+    document.getElementById('selected').textContent = data.selected || 0;
+    
+    if (data.profile) {
+        document.getElementById('studentName').textContent = data.profile.name;
+        document.getElementById('userName').textContent = data.profile.name;
+        document.getElementById('studentBranch').textContent = data.profile.branch;
+        document.getElementById('studentYear').textContent = 'Class of ' + data.profile.grad_year;
+    }
+    
+    const score = data.resume_score || 0;
+    document.getElementById('resumeScore').textContent = score;
+    document.getElementById('resumeScoreBar').style.width = score + '%';
+    
+    renderRecommendedJobs(data.recommended_jobs || []);
+    renderAppliedJobs(data.applied_jobs || []);
+}
+
+function renderRecommendedJobs(jobs) {
+    const container = document.getElementById('recommendedJobs');
+    if (jobs.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center">No recommendations yet. Update your skills!</p>';
+        return;
+    }
+    container.innerHTML = jobs.slice(0, 3).map(job => `
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h6 class="mb-1">${job.job.title}</h6>
+                    <p class="text-muted small mb-2">${job.job.description.substring(0, 80)}...</p>
+                    <div class="mb-2">
+                        ${(job.job.required_skills_list || []).slice(0, 4).map(skill => `<span class="skill-tag" style="font-size: 11px;">${skill}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success">${job.match_score}%</span>
+                    <button class="btn btn-sm btn-primary mt-2" onclick="applyJob(${job.job.id})">Apply</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAppliedJobs(applications) {
+    const container = document.getElementById('appliedJobs');
+    if (applications.length === 0) {
+        container.innerHTML = '<p class="text-muted text-center">No applications yet</p>';
+        return;
+    }
+    const statusClass = {'Applied': 'badge-applied', 'Shortlisted': 'badge-shortlisted', 'Rejected': 'badge-rejected', 'Interview': 'badge-interview'};
+    container.innerHTML = applications.slice(0, 3).map(app => `
+        <div class="job-card">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h6 class="mb-0">${app.job.title}</h6>
+                    <small class="text-muted">${new Date(app.application.applied_at).toLocaleDateString()}</small>
+                </div>
+                <span class="${statusClass[app.application.status] || 'badge-applied'}">${app.application.status}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function applyJob(jobId) {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch('/api/students/jobs/apply/' + jobId, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await response.json();
+        if (response.ok) {
+            showNotification('Applied successfully!', 'success');
+            loadDashboard();
+        } else {
+            showNotification(data.error || 'Failed', 'danger');
+        }
+    } catch (error) {
+        showNotification('Error', 'danger');
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}

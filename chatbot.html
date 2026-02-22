@@ -1,0 +1,472 @@
+<!-- CareerBot Chat Widget -->
+<div id="careerbot-widget" class="careerbot-widget">
+    <button class="careerbot-toggle" onclick="toggleCareerBot()">
+        <i class="fas fa-robot"></i>
+        <span>CareerBot</span>
+    </button>
+    
+    <div class="careerbot-container" id="careerbotContainer">
+        <div class="careerbot-header">
+            <div class="careerbot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="careerbot-title">
+                <h4>CareerBot</h4>
+                <p>AI Career Assistant</p>
+            </div>
+            <button class="careerbot-close" onclick="toggleCareerBot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="careerbot-messages" id="careerbotMessages">
+            <div class="careerbot-message bot">
+                <div class="message-content">
+                    <p>👋 Hi! I'm <strong>CareerBot</strong>, your AI career assistant!</p>
+                    <p>I can help you with:</p>
+                    <ul>
+                        <li>📝 Resume tips</li>
+                        <li>💼 Job recommendations</li>
+                        <li>📚 Learning paths</li>
+                        <li>🎯 Interview preparation</li>
+                    </ul>
+                    <p>How can I help you today?</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="careerbot-input">
+            <input type="text" id="careerbotInput" placeholder="Ask CareerBot..." onkeypress="handleCareerBotKey(event)">
+            <button onclick="sendCareerBotMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.careerbot-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.careerbot-toggle {
+    background: linear-gradient(135deg, #4361ee, #3f37c9);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(67, 97, 238, 0.4);
+    transition: all 0.3s ease;
+}
+
+.careerbot-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(67, 97, 238, 0.5);
+}
+
+.careerbot-toggle i {
+    font-size: 20px;
+}
+
+.careerbot-container {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 380px;
+    height: 500px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.careerbot-container.active {
+    display: flex;
+}
+
+.careerbot-header {
+    background: linear-gradient(135deg, #4361ee, #3f37c9);
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.careerbot-avatar {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.careerbot-title {
+    flex: 1;
+}
+
+.careerbot-title h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.careerbot-title p {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.careerbot-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.careerbot-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.careerbot-message {
+    margin-bottom: 15px;
+    display: flex;
+}
+
+.careerbot-message.bot {
+    justify-content: flex-start;
+}
+
+.careerbot-message.user {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.careerbot-message.bot .message-content {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.careerbot-message.user .message-content {
+    background: linear-gradient(135deg, #4361ee, #3f37c9);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.message-content li {
+    margin: 5px 0;
+}
+
+.careerbot-input {
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.careerbot-input input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.careerbot-input input:focus {
+    border-color: #4361ee;
+}
+
+.careerbot-input button {
+    background: linear-gradient(135deg, #4361ee, #3f37c9);
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.3s;
+}
+
+.careerbot-input button:hover {
+    transform: scale(1.05);
+}
+
+/* Typing indicator */
+.typing-indicator {
+    display: flex;
+    gap: 5px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #4361ee;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Dark mode support */
+.dark-mode .careerbot-container {
+    background: #1a1a2e;
+    border: 1px solid #2d2d44;
+}
+
+.dark-mode .careerbot-messages {
+    background: #16213e;
+}
+
+.dark-mode .careerbot-message.bot .message-content {
+    background: #1a1a2e;
+    color: #eee;
+}
+
+.dark-mode .careerbot-input {
+    background: #1a1a2e;
+    border-top-color: #2d2d44;
+}
+
+.dark-mode .careerbot-input input {
+    background: #16213e;
+    border-color: #2d2d44;
+    color: white;
+}
+
+@media (max-width: 480px) {
+    .careerbot-container {
+        width: calc(100vw - 40px);
+        height: calc(100vh - 120px);
+        right: -10px;
+    }
+}
+</style>
+
+<script>
+function toggleCareerBot() {
+    const container = document.getElementById('careerbotContainer');
+    container.classList.toggle('active');
+}
+
+function handleCareerBotKey(event) {
+    if (event.key === 'Enter') {
+        sendCareerBotMessage();
+    }
+}
+
+function sendCareerBotMessage() {
+    const input = document.getElementById('careerbotInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, 'user');
+    input.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Get bot response
+    setTimeout(() => {
+        removeTypingIndicator();
+        const response = getCareerBotResponse(message);
+        addMessage(response, 'bot');
+    }, 1000);
+}
+
+function addMessage(content, sender) {
+    const container = document.getElementById('careerbotMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `careerbot-message ${sender}`;
+    messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const container = document.getElementById('careerbotMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'careerbot-message bot';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    `;
+    container.appendChild(typingDiv);
+    container.scrollTop = container.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+function getCareerBotResponse(message) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Resume help
+    if (lowerMessage.includes('resume') || lowerMessage.includes('cv')) {
+        return `
+            <p>📝 <strong>Resume Tips:</strong></p>
+            <ul>
+                <li>Keep it concise - 1-2 pages max</li>
+                <li>Highlight relevant skills for the job</li>
+                <li>Include quantifiable achievements</li>
+                <li>Use action verbs (Led, Developed, Achieved)</li>
+                <li>Proofread for errors!</li>
+            </ul>
+            <p>💡 Want me to check your resume score?</p>
+        `;
+    }
+    
+    // Interview help
+    if (lowerMessage.includes('interview')) {
+        return `
+            <p>🎯 <strong>Interview Preparation:</strong></p>
+            <ul>
+                <li>Research the company thoroughly</li>
+                <li>Practice common questions</li>
+                <li>Prepare your own questions</li>
+                <li>Dress professionally</li>
+                <li>Be on time (5-10 mins early)</li>
+            </ul>
+            <p>Remember: Confidence is key! 🌟</p>
+        `;
+    }
+    
+    // Skills
+    if (lowerMessage.includes('skill') || lowerMessage.includes('learn')) {
+        return `
+            <p>📚 <strong>Top Skills to Learn:</strong></p>
+            <ul>
+                <li>Python - Most in-demand</li>
+                <li>JavaScript - Web development</li>
+                <li>SQL - Database management</li>
+                <li>Cloud (AWS/Azure) - High paying</li>
+                <li>Machine Learning - Future tech</li>
+            </ul>
+            <p>💡 Need a learning path for a specific skill?</p>
+        `;
+    }
+    
+    // Jobs
+    if (lowerMessage.includes('job') || lowerMessage.includes('apply')) {
+        return `
+            <p>💼 <strong>Job Search Tips:</strong></p>
+            <ul>
+                <li>Update your profile regularly</li>
+                <li>Upload your resume</li>
+                <li>Add relevant skills</li>
+                <li>Apply to matching jobs</li>
+                <li>Track your applications</li>
+            </ul>
+            <p>🔍 Check the Jobs section for recommendations!</p>
+        `;
+    }
+    
+    // Greetings
+    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+        return `
+            <p>👋 Hello! Great to see you!</p>
+            <p>I'm CareerBot, here to help with your career journey.</p>
+            <p>Ask me about:</p>
+            <ul>
+                <li>Resume tips</li>
+                <li>Interview preparation</li>
+                <li>Job search</li>
+                <li>Learning paths</li>
+            </ul>
+        `;
+    }
+    
+    // Help
+    if (lowerMessage.includes('help')) {
+        return `
+            <p>🆘 <strong>Here's how I can help:</strong></p>
+            <ul>
+                <li><strong>Resume</strong> - Get resume tips</li>
+                <li><strong>Interview</strong> - Prepare for interviews</li>
+                <li><strong>Skills</strong> - Learn what to study</li>
+                <li><strong>Jobs</strong> - Job search tips</li>
+            </ul>
+            <p>Just type what you need help with! 😊</p>
+        `;
+    }
+    
+    // Default response
+    return `
+        <p>🤔 I understand you're asking about: <em>"${message}"</em></p>
+        <p>Here are some things I can help with:</p>
+        <ul>
+            <li>📝 <strong>Resume</strong> - Get resume tips</li>
+            <li>🎯 <strong>Interview</strong> - Interview preparation</li>
+            <li>📚 <strong>Skills</strong> - Learning recommendations</li>
+            <li>💼 <strong>Jobs</strong> - Job search tips</li>
+        </ul>
+        <p>Or type <strong>help</strong> for more options!</p>
+    `;
+}
+</script>

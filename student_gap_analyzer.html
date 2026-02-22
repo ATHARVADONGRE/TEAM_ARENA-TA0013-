@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}AI Gap Analyzer - Skill-Link{% endblock %}
+
+{% block content %}
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fas fa-link"></i> Skill-Link</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/jobs"><i class="fas fa-briefcase"></i> Jobs</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/applications"><i class="fas fa-file-alt"></i> Applications</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/resume"><i class="fas fa-upload"></i> Resume</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/skills"><i class="fas fa-tags"></i> Skills</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/dashboard/student/gap-analyzer"><i class="fas fa-search-minus"></i> AI Gap Analyzer</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard/student/mock-test"><i class="fas fa-clipboard-check"></i> AI Mock Test</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="fas fa-user-graduate"></i> <span id="userName">Student</span></a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li></ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid py-4">
+    <div class="dashboard-card mb-4">
+        <h4 class="mb-4"><i class="fas fa-search-minus text-primary me-2"></i>AI Gap Analyzer</h4>
+        <p class="text-muted">Analyze skill gaps between your profile and job requirements</p>
+        
+        <div class="mb-4">
+            <label class="form-label">Select a Job to Analyze</label>
+            <select class="form-select" id="jobSelect" onchange="analyzeGap()">
+                <option value="">Choose a job...</option>
+            </select>
+        </div>
+        
+        <div id="gapAnalysis" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h3 id="matchPercentage">0%</h3>
+                            <p class="mb-0">Match Score</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" id="severityCard">
+                        <div class="card-body text-center">
+                            <h3 id="gapSeverity">-</h3>
+                            <p class="mb-0">Gap Severity</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h3 id="missingCount">0</h3>
+                            <p class="mb-0">Missing Skills</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-check me-2"></i>Matched Skills</h6>
+                        </div>
+                        <div class="card-body" id="matchedSkills">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-danger text-white">
+                            <h6 class="mb-0"><i class="fas fa-times me-2"></i>Missing Skills</h6>
+                        </div>
+                        <div class="card-body" id="missingSkills">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Learning Paths</h6>
+                </div>
+                <div class="card-body" id="learningPaths">
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Analyzing...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+var jobsList = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    loadJobs();
+});
+
+function checkAuth() {
+    var token = localStorage.getItem('token');
+    if (!token || localStorage.getItem('userRole') !== 'student') {
+        window.location.href = '/student/login';
+    }
+    var student = JSON.parse(localStorage.getItem('student') || '{}');
+    document.getElementById('userName').textContent = student.name || 'Student';
+}
+
+async function loadJobs() {
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/students/jobs/recommended', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            var data = await response.json();
+            jobsList = data.jobs || [];
+            var select = document.getElementById('jobSelect');
+            jobsList.forEach(function(job) {
+                var option = document.createElement('option');
+                option.value = job.job.id;
+                option.textContent = job.job.title + ' - ' + job.match_score + '% match';
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function analyzeGap() {
+    var jobId = document.getElementById('jobSelect').value;
+    if (!jobId) {
+        document.getElementById('gapAnalysis').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('gapAnalysis').style.display = 'none';
+    
+    var token = localStorage.getItem('token');
+    try {
+        var response = await fetch('/api/ai/gap-analysis/' + jobId, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (response.ok) {
+            var data = await response.json();
+            displayAnalysis(data.gap_analysis);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('gapAnalysis').style.display = 'block';
+}
+
+function displayAnalysis(analysis) {
+    document.getElementById('matchPercentage').textContent = analysis.match_percentage + '%';
+    document.getElementById('gapSeverity').textContent = analysis.gap_severity;
+    document.getElementById('missingCount').textContent = analysis.missing_skills.length;
+    
+    // Severity card color
+    var severityCard = document.getElementById('severityCard');
+    if (analysis.gap_severity === 'Low') {
+        severityCard.className = 'card bg-success text-white';
+    } else if (analysis.gap_severity === 'Medium') {
+        severityCard.className = 'card bg-warning text-white';
+    } else {
+        severityCard.className = 'card bg-danger text-white';
+    }
+    
+    // Matched skills
+    var matchedDiv = document.getElementById('matchedSkills');
+    if (analysis.matched_skills.length > 0) {
+        matchedDiv.innerHTML = analysis.matched_skills.map(function(skill) {
+            return '<span class="skill-tag" style="background: #28a745; color: white;">' + skill + '</span>';
+        }).join(' ');
+    } else {
+        matchedDiv.innerHTML = '<p class="text-muted">No matching skills found</p>';
+    }
+    
+    // Missing skills
+    var missingDiv = document.getElementById('missingSkills');
+    if (analysis.missing_skills.length > 0) {
+        missingDiv.innerHTML = analysis.missing_skills.map(function(skill) {
+            return '<span class="skill-tag" style="background: #dc3545; color: white;">' + skill + '</span>';
+        }).join(' ');
+    } else {
+        missingDiv.innerHTML = '<p class="text-success">All required skills covered!</p>';
+    }
+    
+    // Learning paths
+    var pathsDiv = document.getElementById('learningPaths');
+    if (analysis.learning_paths && Object.keys(analysis.learning_paths).length > 0) {
+        var html = '<ul class="list-group">';
+        for (var skill in analysis.learning_paths) {
+            html += '<li class="list-group-item"><strong>' + skill + ':</strong> ' + analysis.learning_paths[skill] + '</li>';
+        }
+        html += '</ul>';
+        pathsDiv.innerHTML = html;
+    } else {
+        pathsDiv.innerHTML = '<p class="text-muted">No learning paths needed</p>';
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+}
+</script>
+{% endblock %}
