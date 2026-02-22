@@ -54,6 +54,7 @@
 - **Authentication**: JWT (JSON Web Tokens)
 - **AI/NLP**: Python (rule-based + regex parsing)
 - **Deployment**: Render / Railway
+- also used Openai's API key
 
 ---
 
@@ -251,3 +252,4 @@ This project is built by **Team Arena** for educational purposes.
 
 <p align="center">Made with ❤️ by Team Arena</p>
 <p align="center">Skill-Link - Connecting Talent with Opportunity</p>
+
